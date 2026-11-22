@@ -19,6 +19,7 @@ Pizarra digital familiar **multiplataforma** (móvil, tableta, ordenador y panta
 | **Modo pizarra** | Pantalla completa + pantalla siempre encendida |
 | **Temas** | Claro / oscuro / automático y color principal |
 | **Copia de seguridad** | Exportar/restaurar todo en JSON |
+| **Sincronización en la nube** | Login con email (Supabase); solo los emails autorizados leen/editan. Sincroniza datos, ajustes y fotos entre dispositivos |
 
 ## Usar
 
@@ -32,11 +33,11 @@ Publicada en GitHub Pages (Settings → Pages → rama `main`, carpeta `/`) se p
 
 ## Datos y privacidad
 
-Todo se guarda en el dispositivo (`localStorage` e `IndexedDB` para las fotos). Lo único que sale a Internet es la consulta del tiempo a Open-Meteo. Para llevar los datos a otro dispositivo usa *Ajustes → Copia de seguridad* (las fotos no se incluyen).
+Sin iniciar sesión, todo se guarda solo en el dispositivo (`localStorage` e `IndexedDB`). Con sesión iniciada se sincroniza con Supabase: tabla `pf_state` y bucket privado `pf-photos`, protegidos por la lista `pf_allowed` y emails confirmados (ver `supabase/setup.sql`). También se consulta el tiempo a Open-Meteo.
 
 ## Limitaciones
 
-- No hay sincronización en la nube entre dispositivos (de momento, solo copia manual y `.ics`).
+- Los cambios simultáneos sobre un mismo dato se resuelven a favor del último dispositivo que sincroniza.
 - La importación de un `.ics` por URL depende de que el servidor permita CORS; si no, descarga el archivo e impórtalo.
 - El dictado por voz usa la API del navegador (Chrome, Edge, Safari).
 

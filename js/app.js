@@ -46,7 +46,7 @@ const KEY = 'pizarra.v1';
 const defaults = () => ({
   profiles: [{ id: 'p1', name: 'Familia', color: COLORS[0] }],
   events: [], chores: [], rewards: [], ledger: [],
-  meals: {}, groceries: [], pantry: [], lists: [],
+  meals: {}, groceries: [], pantry: [], lists: [], photos: [],
   settings: { theme: 'auto', accent: COLORS[0], bedtime: '22:30', wake: '07:00', saverMin: 5, city: 'Madrid', lat: 40.4168, lon: -3.7038 }
 });
 let S = load();
@@ -539,15 +539,15 @@ function viewPhotos() {
   const refresh = async () => {
     let all = []; try { all = await photoDB.all(); } catch (e) { /* sin IndexedDB */ }
     grid.replaceChildren(...(all.length ? all.map(p => h('div', { class: 'photo' }, h('img', { src: URL.createObjectURL(p.blob), alt: p.name, loading: 'lazy' }),
-      h('button', { 'aria-label': 'Borrar', onclick: async () => { await photoDB.del(p.id); refresh(); } }, '✕'))) : [h('div', { class: 'empty' }, 'Sube fotos para el salvapantallas.')]));
+      h('button', { 'aria-label': 'Borrar', onclick: async () => { await photoDB.del(p.id); S.photos = S.photos.filter(x => x.id !== p.id); if (typeof noteDeletedPhoto === 'function') noteDeletedPhoto(p.id); save(); refresh(); } }, '✕'))) : [h('div', { class: 'empty' }, 'Sube fotos para el salvapantallas.')]));
   };
   file.addEventListener('change', async () => {
-    for (const f of file.files) { try { await photoDB.put({ id: uid(), name: f.name, blob: await shrink(f) }); } catch (e) { toast('No se pudo subir ' + f.name); } }
-    file.value = ''; refresh();
+    for (const f of file.files) { try { const id = uid(); await photoDB.put({ id, name: f.name, blob: await shrink(f) }); S.photos.push({ id, name: f.name }); } catch (e) { toast('No se pudo subir ' + f.name); } }
+    save(); file.value = ''; refresh();
   });
   refresh();
   return h('div', null, head('Fotos', h('button', { class: 'btn', onclick: startSaver }, '▶ Probar salvapantallas'), h('button', { class: 'btn primary', onclick: () => file.click() }, '+ Subir fotos')), file,
-    h('p', { class: 'muted' }, `Se muestran como salvapantallas tras ${S.settings.saverMin} min sin tocar la pantalla. Las fotos se quedan en este dispositivo.`), grid);
+    h('p', { class: 'muted' }, `Se muestran como salvapantallas tras ${S.settings.saverMin} min sin tocar la pantalla. Si sincronizas, las fotos se comparten entre vuestros dispositivos.`), grid);
 }
 
 /* — Ajustes — */

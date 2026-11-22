@@ -1,0 +1,1 @@
+-- Resumen: ver migración 'pizarra_familiar_auth' aplicada en Supabase. Tablas pf_allowed, pf_state, funciones pf_is_member/pf_pull/pf_push y bucket pf-photos con RLS por miembro.
