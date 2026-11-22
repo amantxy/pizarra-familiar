@@ -57,7 +57,7 @@ function load() {
   } catch (e) { /* estado corrupto: se reinicia */ }
   return defaults();
 }
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('No se pudo guardar (almacenamiento lleno)'); } }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('No se pudo guardar (almacenamiento lleno)'); } if (typeof scheduleSync === 'function') scheduleSync(); }
 const profile = id => S.profiles.find(p => p.id === id) || S.profiles[0];
 const profOpts = (withAll) => [...(withAll ? [{ value: '', label: 'Todos' }] : []), ...S.profiles.map(p => ({ value: p.id, label: p.name }))];
 
@@ -584,7 +584,7 @@ function viewSettings() {
   const install = h('section', { class: 'card' }, h('h2', null, '📲 Instalar'), h('p', { class: 'muted' }, 'Funciona en móvil, tableta, ordenador y pantallas táctiles con navegador. Instálala para usarla a pantalla completa y sin conexión.'),
     h('button', { class: 'btn primary', onclick: async () => { if (deferredInstall) { deferredInstall.prompt(); deferredInstall = null; } else toast('Menú del navegador → «Instalar app» o «Añadir a pantalla de inicio»'); } }, 'Instalar app'),
     h('div', { class: 'muted', style: { marginTop: '8px', fontSize: '.85rem' } }, 'Los datos se guardan en este dispositivo; usa la copia de seguridad para pasarlos a otro.'));
-  return h('div', null, head('Ajustes'), h('div', { class: 'grid' }, profiles, look, place, data, install));
+  return h('div', null, head('Ajustes'), h('div', { class: 'grid' }, syncCard(), profiles, look, place, data, install));
 }
 function pickFile(accept, cb) {
   const i = h('input', { type: 'file', accept }); i.onchange = () => i.files[0] && i.files[0].text().then(cb); i.click();
